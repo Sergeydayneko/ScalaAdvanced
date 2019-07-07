@@ -88,7 +88,4 @@ object DarkSugars extends App {
   val aMutableContainer = new Mutable
   aMutableContainer.member = 42 // rewritten as aMutableContainer.member_=(42)
 
-
- // advanced pattern matching
-
 }
