@@ -1,9 +1,11 @@
 package lectures.partOne
 
+import lectures.partOne.AdvancedPatternMatching.PersonWrapper
+
 object AdvancedPatternMatching extends App {
   val numbers = List(4)
 
-  val desc = numbers match {
+  val desc = numbersForUnapply match {
     case head :: Nil => head
     case _ =>
   }
@@ -76,7 +78,72 @@ object AdvancedPatternMatching extends App {
   }
 
 
-  println(whatIsThisNumber)
+//  println(whatIsThisNumber)
 
-  // pattern matching part 2 next
+  // pattern matching part 2
+
+  case class Or[A, B](a: A, b: B)
+  val either = Or(2, "Two")
+
+  // Можем написать case Or(number, string) или number Or string (можно использовать только с 2 аргументами)
+  // Короч case класс мы можем разбирать без unapply, где аргументами будут аргменты кейс класса
+  val choice = either match {
+    case number Or string =>
+  }
+
+  val numbersForUnapply = List(1, 2, 3)
+
+  val isOne = numbersForUnapply match {
+    case List(1, _*) => "Starting with one"
+  }
+
+//  println(isOne)
+
+  // когда создаем геттеры, автоматически появляются поля
+  abstract class MyList[+A] {
+    def head: A = ???
+    def tail: MyList[A] = ???
+  }
+
+  case object Empty extends MyList[Nothing]
+  case class Cons[+A](override val head: A, override val tail: MyList[A]) extends MyList[A]
+
+  object MyList {
+    def unapplySeq[A](list: MyList[A]): Option[Seq[A]] = {
+      if (list == Empty) Some(Seq.empty)
+      else unapplySeq(list.tail).map(list.head +: _)
+    }
+  }
+
+  val myList: MyList[Int] = Cons(1, Cons(2, Cons(3, Empty)))
+
+  val value = myList match {
+    case MyList(1, 2, 3) => "Right List"
+    case _ => "Nothing good"
+  }
+
+//  println(value)
+
+  // !!! custom return type for unapply
+  // Для создания обертки для unapply метода необходимо
+  // создать класс, который будет иметь два метода: isEmpty: Boolean и get: T
+  // Используется редко
+  abstract class Wrapper[T] {
+    def isEmpty: Boolean // если закометировать и не овверайдить потом, то обернуть в unapply этот метод будет нельзя
+    def get: T
+  }
+
+  object PersonWrapper {
+    def unapply(person: Person): Wrapper[String] = new Wrapper[String] {
+      override def isEmpty: Boolean = false
+      override def get: String = person.name
+    }
+  }
+
+  val nameOfPerson = new Person("bob", 25) match  {
+    case PersonWrapper(n) => s"His name is $n"
+    case _ => "I dont know who is that person"
+  }
+
+  println(nameOfPerson)
 }
