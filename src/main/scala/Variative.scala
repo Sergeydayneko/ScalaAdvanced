@@ -1,14 +1,15 @@
+import scala.math._
+
 object Variative extends App {
 
-  case class Person(name: String)
-  class Student(name: String, val faculty: String) extends Person(name)
 
-  case class Pair[T >: Person](f: T, s: T)
+  def fact(n: Int, acc: Int): Int = if (n == 1) acc else fact(n - 1, acc * n)
 
-  def testPair(arg: Pair[Person]) = println(arg.f.name)
 
-  val personPair = Pair(Person("serj"), Person("vika"))
-  val studentPair = Pair(new Student("Vika", "it"), new Student("vika", "chem"))
-
+  def evaluateNumber(n: Double): BigDecimal = {
+    (1 to 8).foldLeft(BigDecimal(1.0 + n))((acc, next) =>
+       acc + BigDecimal(pow(n, next) / fact(next, 1)).setScale(4, BigDecimal.RoundingMode.HALF_UP)
+    )
+  }
 
 }
